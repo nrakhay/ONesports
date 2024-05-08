@@ -1,6 +1,6 @@
 # ON Esports Bot for Discord
 
-Welcome to the implementation of the Discord Bot for [OneSports.gg](https://onesports.gg/). To get started with using this bot, please follow the setup instructions below.
+Welcome to the implementation of the Discord Bot for [ONEsports.gg](https://onesports.gg/). To get started with using this bot, please follow the setup instructions below.
 
 ## Project Setup
 
