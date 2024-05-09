@@ -32,7 +32,16 @@ cp .env-example .env # change *cp* to *copy* if you are using Windows
 
 Then, go to .env file and put token from Step 2 instead of {YOUR_TOKEN_HERE}.
 
-**5. Run the application**
+**5. Setup Database**  
+
+```bash
+cd local-build/
+docker compose up -d
+```
+
+Then, go to .env file and put token from Step 2 instead of {YOUR_TOKEN_HERE}. Also, do not forget to populate other variables
+
+**6. Run the application**
 
 ```bash
  go build
