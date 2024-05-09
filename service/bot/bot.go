@@ -4,10 +4,14 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"time"
 
-	"github.com/bwmarrin/discordgo"
 	"github.com/nrakhay/ONEsports/config"
+	"github.com/nrakhay/ONEsports/service/s3"
+
+	"github.com/bwmarrin/discordgo"
+
 	"github.com/pion/rtp"
 	"github.com/pion/webrtc/v3/pkg/media"
 	"github.com/pion/webrtc/v3/pkg/media/oggwriter"
@@ -73,9 +77,28 @@ func voiceStateUpdateHandler(s *discordgo.Session, vs *discordgo.VoiceStateUpdat
 }
 
 func onBotLeaveVoiceChannel() {
-	log.Println("Saving the recording to S3..")
+	log.Println("Saving the recording to S3...")
 
-	// TODO: Implement logic to save recording to S3
+	dir := "recordings"
+
+	files, err := os.ReadDir(dir)
+	if err != nil {
+		log.Printf("Failed to read directory: %v", err)
+		return
+	}
+
+	// upload each file to S3
+	// TODO: make such that it uploads only the file that was just recorded
+	for _, f := range files {
+		fileName := filepath.Join(dir, f.Name())
+		err := s3.UploadFileToS3(fileName)
+		if err != nil {
+			log.Printf("Failed to upload %s to S3: %v", fileName, err)
+		} else {
+			log.Printf("Successfully uploaded %s to S3", fileName)
+		}
+	}
+
 }
 
 func createPionRTPPacket(p *discordgo.Packet) *rtp.Packet {

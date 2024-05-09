@@ -12,6 +12,7 @@ require (
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/pion/randutil v0.1.0 // indirect
 	github.com/pion/rtp v1.8.6 // indirect
+	github.com/pion/webrtc/v2 v2.2.26 // indirect
 	github.com/pion/webrtc/v3 v3.2.40 // indirect
 	golang.org/x/crypto v0.23.0 // indirect
 	golang.org/x/net v0.25.0 // indirect
