@@ -1,13 +1,14 @@
 package main
 
 import (
-    "fmt"
+	"fmt"
+
 	"github.com/nrakhay/ONEsports/config"
-	"github.com/nrakhay/ONEsports/bot"
+	"github.com/nrakhay/ONEsports/service/bot"
 )
 
 func main() {
-    err := config.ReadConfig()
+	err := config.ReadConfig()
 
 	if err != nil {
 		fmt.Println(err)
