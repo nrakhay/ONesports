@@ -35,7 +35,7 @@ Then, go to .env file and put token from Step 2 instead of {YOUR_TOKEN_HERE}.
 **5. Setup Database**  
 
 ```bash
-cd local-build/
+cd local/
 docker compose up -d
 ```
 
