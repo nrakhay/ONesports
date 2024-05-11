@@ -1,57 +1,22 @@
 package main
 
 import (
-	"fmt"
-	"log"
+	"log/slog"
 
-	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
-	"github.com/nrakhay/ONEsports/config"
-	"github.com/nrakhay/ONEsports/database"
-	"github.com/nrakhay/ONEsports/service/bot"
+	"github.com/nrakhay/ONEsports/internal/bot"
+	"github.com/nrakhay/ONEsports/internal/config"
+	"github.com/nrakhay/ONEsports/internal/database"
 )
-
-var db *sqlx.DB
 
 func main() {
 	err := config.ReadConfig()
 
 	if err != nil {
-		fmt.Println(err)
+		slog.Error("Error occured reading config:", err)
 		return
 	}
 
-	db, err := connectDB()
-	if err != nil {
-		log.Fatalln(err)
-	}
-	defer db.Close()
-
-	// testing conn
-	if err := db.Ping(); err != nil {
-		log.Fatal(err)
-	} else {
-		log.Println("Successfully Connected")
-	}
+	database.ConnectDB()
 
 	bot.Start()
-
-	<-make(chan struct{})
-	return
-}
-
-func connectDB() (*sqlx.DB, error) {
-	connStr := "host=localhost port=5432 user=postgres password=admin dbname=on_esports_db sslmode=disable"
-	db, err := sqlx.Connect("postgres", connStr)
-	if err != nil {
-		return nil, err
-	}
-
-	db.MustExec(database.Schema)
-
-	return db, nil
-}
-
-func GetDB() *sqlx.DB {
-	return db
 }
