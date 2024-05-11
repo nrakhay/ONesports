@@ -6,6 +6,7 @@ import (
 	"github.com/nrakhay/ONEsports/internal/bot"
 	"github.com/nrakhay/ONEsports/internal/config"
 	"github.com/nrakhay/ONEsports/internal/database"
+	"github.com/nrakhay/ONEsports/internal/service/s3"
 )
 
 func main() {
@@ -17,6 +18,9 @@ func main() {
 	}
 
 	database.ConnectDB()
+	database.PopulateDB()
+
+	s3.StartS3Session()
 
 	bot.Start()
 }

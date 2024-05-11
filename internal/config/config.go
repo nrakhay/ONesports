@@ -15,8 +15,6 @@ var (
 	AccessKeyID     string
 	SecretAccessKey string
 	Region          string
-
-	config *Config
 )
 
 type Config struct {

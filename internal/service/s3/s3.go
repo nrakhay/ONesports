@@ -3,6 +3,8 @@ package s3
 import (
 	"bytes"
 	"fmt"
+	"io"
+	"log/slog"
 	"os"
 	"path/filepath"
 
@@ -13,44 +15,43 @@ import (
 	"github.com/nrakhay/ONEsports/internal/config"
 )
 
-func startSession() *s3.S3 {
+var s3Service *s3.S3
+
+func StartS3Session() {
 	sess, err := session.NewSession(&aws.Config{
 		Region:      aws.String(config.Region),
 		Credentials: credentials.NewStaticCredentials(config.AccessKeyID, config.SecretAccessKey, ""),
 	})
 
 	if err != nil {
-		fmt.Printf("Error creating session: %s\n", err)
-		return nil
+		slog.Error("Error creating session:", "error", err)
+		return
 	}
 
-	svc := s3.New(sess)
+	s3Service = s3.New(sess)
 
-	fmt.Println("S3 service initialized:", svc)
-	return svc
+	slog.Info("S3 service initialized")
 }
 
-func UploadFileToS3(filePath string) error {
+func UploadFileToS3(filePath string) (string, error) {
 	file, err := os.Open(filePath)
 
 	if err != nil {
-		return err
+		return "", err
 	}
 	defer file.Close()
-
-	svc := startSession()
 
 	// get file size and read content to buffer
 	fileInfo, err := file.Stat()
 	if err != nil {
-		return err
+		return "", err
 	}
 	var size = fileInfo.Size()
 	buffer := make([]byte, size)
 	file.Read(buffer)
 
 	// upload to s3
-	_, err = svc.PutObject(&s3.PutObjectInput{
+	_, err = s3Service.PutObject(&s3.PutObjectInput{
 		Bucket:               aws.String(config.BucketName),
 		Key:                  aws.String(filepath.Base(filePath)),
 		ACL:                  aws.String("private"),
@@ -60,5 +61,33 @@ func UploadFileToS3(filePath string) error {
 		ContentDisposition:   aws.String("attachment"),
 		ServerSideEncryption: aws.String("AES256"),
 	})
-	return err
+
+	if err != nil {
+		return "", err
+	}
+
+	// construct file URL
+	fileURL := fmt.Sprintf("s3://%s/%s", config.BucketName, filepath.Base(filePath))
+
+	return fileURL, nil
+}
+
+func RetrieveFileFromS3(key string) ([]byte, error) {
+	result, err := s3Service.GetObject(&s3.GetObjectInput{
+		Bucket: aws.String(config.BucketName),
+		Key:    aws.String(key),
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer result.Body.Close()
+
+	buffer, err := io.ReadAll(result.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return buffer, nil
 }

@@ -4,7 +4,7 @@ services:
     container_name: on_esports_pgdb
     image: postgres:16-alpine
     ports:
-      - "5432:5432"
+      - "50500:5432"
     environment:
       POSTGRES_USER: postgres
       DB_NAME: on_esports_db

@@ -77,7 +77,7 @@ func VoiceStateUpdateHandler(s *discordgo.Session, vs *discordgo.VoiceStateUpdat
 	if vs.UserID == s.State.User.ID {
 		if vs.ChannelID == "" {
 			slog.Info("Bot has left the voice channel")
-			voice.OnBotLeaveVoiceChannel()
+			voice.OnBotLeaveVoiceChannel(vs.ChannelID)
 		} else {
 			slog.Info("Bot is now in voice channel.", "VC ID", vs.ChannelID)
 		}

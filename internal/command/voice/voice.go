@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/nrakhay/ONEsports/internal/command/text"
+	"github.com/nrakhay/ONEsports/internal/repository"
 	"github.com/nrakhay/ONEsports/internal/service/s3"
 
 	"github.com/bwmarrin/discordgo"
@@ -16,7 +18,7 @@ import (
 	"github.com/pion/webrtc/v3/pkg/media/oggwriter"
 )
 
-func OnBotLeaveVoiceChannel() {
+func OnBotLeaveVoiceChannel(channelID string) {
 	dir := "recordings"
 
 	files, err := os.ReadDir(dir)
@@ -34,19 +36,28 @@ func OnBotLeaveVoiceChannel() {
 
 	for _, f := range files {
 		fileName := filepath.Join(dir, f.Name())
-		err := s3.UploadFileToS3(fileName)
+		s3Url, err := s3.UploadFileToS3(fileName)
 		if err != nil {
 			slog.Error("Failed to upload %s to S3: %v", fileName, err)
-		} else {
-			slog.Info("Successfully uploaded to S3.", "Filename", f.Name())
+			continue
+		}
 
-			err := os.Remove(fileName)
-			if err != nil {
-				slog.Info("Failed to delete %s: %v", fileName, err)
-			}
+		slog.Info("Successfully uploaded to S3.", "Filename", f.Name())
+
+		err = repository.CreateVCRecording(channelID, s3Url)
+		if err != nil {
+			slog.Error("Failed to create recording in database", "error", err)
+			continue
+		}
+
+		// this is text channel id for recordings
+		text.SendVoiceRecordingToTextChannel("1238876913070637198", f.Name())
+
+		err = os.Remove(fileName)
+		if err != nil {
+			slog.Info("Failed to delete %s: %v", fileName, err)
 		}
 	}
-
 }
 
 func createPionRTPPacket(p *discordgo.Packet) *rtp.Packet {
