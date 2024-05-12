@@ -2,7 +2,9 @@
 
 Welcome to the implementation of the Discord Bot for [ONEsports.gg](https://onesports.gg/). Along the way, I implemented a Clean Code Architecture and made project structure separated into modules to provide future extendibility and flexibility.
 
-To get started with using this bot, please follow the setup instructions below.
+To get started with using this bot, please follow the setup instructions below. 
+
+[Link to demo video](https://drive.google.com/file/d/1LsYwvCO_901C-MB-a2tjYXspZa19JVie/view?usp=sharing)
 
 ## So, what this bot can do?
 This bot is set up for many different use cases that can be added on demand. However, for now, bot's main funcitonality is:
