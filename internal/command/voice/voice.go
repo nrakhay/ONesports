@@ -64,9 +64,9 @@ func HandleVoice(c chan *discordgo.Packet, channelID string) {
 				key := fmt.Sprintf("%d-%s.ogg", ssrc, time.Now().Format("2006-01-02-15-04-05"))
 				fileURL, err := saveChannelRecording(channelID, buffer, key)
 				if err != nil {
-					slog.Error("Failed to upload to S3", "error", err)
+					slog.Error("Failed to save recording.", "error", err)
 				} else {
-					slog.Info("Successfully uploaded file to S3", "URL", fileURL)
+					slog.Info("Successfully saved file", "URL", fileURL)
 				}
 			}
 		}
