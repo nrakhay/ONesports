@@ -2,6 +2,7 @@ package s3
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -32,9 +33,17 @@ func StartS3Session() {
 }
 
 func UploadBufferToS3(buffer *bytes.Buffer, key string) (string, error) {
+	if buffer == nil {
+		return "", errors.New("buffer is nil")
+	}
+
 	size := int64(buffer.Len())
 
-	// upload to S3
+	if size == 0 {
+		return "", errors.New("buffer is empty")
+	}
+
+	// Upload to S3
 	_, err := s3Service.PutObject(&s3.PutObjectInput{
 		Bucket:               aws.String(config.BucketName),
 		Key:                  aws.String(key),
@@ -50,7 +59,6 @@ func UploadBufferToS3(buffer *bytes.Buffer, key string) (string, error) {
 		return "", err
 	}
 
-	// construct the file URL
 	fileURL := fmt.Sprintf("s3://%s/%s", config.BucketName, key)
 
 	return fileURL, nil

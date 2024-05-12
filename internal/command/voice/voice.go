@@ -12,10 +12,13 @@ import (
 	"github.com/nrakhay/ONEsports/internal/repository"
 	"github.com/nrakhay/ONEsports/internal/service/s3"
 
+	"github.com/pion/rtp"
+	"github.com/pion/webrtc/v3/pkg/media/oggwriter"
+
 	"github.com/bwmarrin/discordgo"
 )
 
-func saveChannelRecording(channelID string, buffer *bytes.Buffer, key string) (s3Url string, err error) {
+func saveChannelRecording(channelID string, buf *bytes.Buffer, key string) (s3Url string, err error) {
 	channel, err := discord.Session.Channel(channelID)
 	if err != nil {
 		slog.Error("Failed to retrieve channel: ", err)
@@ -24,7 +27,7 @@ func saveChannelRecording(channelID string, buffer *bytes.Buffer, key string) (s
 
 	slog.Info("Uploading files to S3")
 
-	s3Url, err = s3.UploadBufferToS3(buffer, key)
+	s3Url, err = s3.UploadBufferToS3(buf, key)
 	if err != nil {
 		slog.Error("Failed to upload to S3", "key", key, "error", err)
 		return "", err
@@ -46,33 +49,61 @@ func saveChannelRecording(channelID string, buffer *bytes.Buffer, key string) (s
 }
 
 func HandleVoice(c chan *discordgo.Packet, channelID string) {
+	files := make(map[uint32]*oggwriter.OggWriter)
 	buffers := make(map[uint32]*bytes.Buffer)
-
 	defer func() {
-		for ssrc, buf := range buffers {
-			key := fmt.Sprintf("%d-%s.ogg", ssrc, time.Now().Format("2006-01-02-15-04-05"))
-
-			s3Url, err := saveChannelRecording(channelID, buf, key)
-			if err != nil {
-				slog.Error("Failed to send SSRC data to S3", "ssrc", ssrc, "error", err)
-				continue
+		for ssrc, writer := range files {
+			if writer != nil {
+				err := writer.Close() // close the writer
+				if err != nil {
+					slog.Error("Failed to close OggWriter", "SSRC ID", ssrc, "error", err)
+				}
 			}
-
-			slog.Info("All SSRC data has been saved", "S3 URL", s3Url)
+			buffer, ok := buffers[ssrc]
+			if ok && buffer.Len() > 0 {
+				key := fmt.Sprintf("%d-%s.ogg", ssrc, time.Now().Format("2006-01-02-15-04-05"))
+				fileURL, err := saveChannelRecording(channelID, buffer, key)
+				if err != nil {
+					slog.Error("Failed to upload to S3", "error", err)
+				} else {
+					slog.Info("Successfully uploaded file to S3", "URL", fileURL)
+				}
+			}
 		}
 	}()
 
 	for p := range c {
-		slog.Info("Bot received packet from", "SSRC", p.SSRC)
-		buffer, ok := buffers[p.SSRC]
+		slog.Info("Bot received packet from SSRC", "SSRC ID", p.SSRC)
+		writer, ok := files[p.SSRC]
 		if !ok {
-			buffer = new(bytes.Buffer)
+			var err error
+			buffer := new(bytes.Buffer)
+			writer, err = oggwriter.NewWith(buffer, 48000, 2)
+			if err != nil {
+				slog.Error("Failed to initialize OggWriter", "error", err)
+				return
+			}
+			files[p.SSRC] = writer
 			buffers[p.SSRC] = buffer
-			slog.Info("Created new buffer for", "SSRC", p.SSRC)
+			slog.Info("Initialized OggWriter for SSRC", "SSRC ID", p.SSRC)
 		}
+		rtp := createPionRTPPacket(p)
+		err := writer.WriteRTP(rtp)
+		if err != nil {
+			slog.Error("Failed to write to OggWriter", "SSRC ID", p.SSRC, "error", err)
+		}
+	}
+}
 
-		if _, err := buffer.Write(p.Opus); err != nil {
-			slog.Error("Failed to write to buffer for", "SSRC", p.SSRC, "error", err)
-		}
+func createPionRTPPacket(p *discordgo.Packet) *rtp.Packet {
+	return &rtp.Packet{
+		Header: rtp.Header{
+			Version:        2,
+			PayloadType:    0x78,
+			SequenceNumber: p.Sequence,
+			Timestamp:      p.Timestamp,
+			SSRC:           p.SSRC,
+		},
+		Payload: p.Opus,
 	}
 }
