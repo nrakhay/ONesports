@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
-	"os"
-	"path/filepath"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -33,29 +31,15 @@ func StartS3Session() {
 	slog.Info("S3 service initialized")
 }
 
-func UploadFileToS3(filePath string) (string, error) {
-	file, err := os.Open(filePath)
+func UploadBufferToS3(buffer *bytes.Buffer, key string) (string, error) {
+	size := int64(buffer.Len())
 
-	if err != nil {
-		return "", err
-	}
-	defer file.Close()
-
-	// get file size and read content to buffer
-	fileInfo, err := file.Stat()
-	if err != nil {
-		return "", err
-	}
-	var size = fileInfo.Size()
-	buffer := make([]byte, size)
-	file.Read(buffer)
-
-	// upload to s3
-	_, err = s3Service.PutObject(&s3.PutObjectInput{
+	// upload to S3
+	_, err := s3Service.PutObject(&s3.PutObjectInput{
 		Bucket:               aws.String(config.BucketName),
-		Key:                  aws.String(filepath.Base(filePath)),
+		Key:                  aws.String(key),
 		ACL:                  aws.String("private"),
-		Body:                 bytes.NewReader(buffer),
+		Body:                 bytes.NewReader(buffer.Bytes()),
 		ContentLength:        aws.Int64(size),
 		ContentType:          aws.String("audio/ogg"),
 		ContentDisposition:   aws.String("attachment"),
@@ -66,8 +50,8 @@ func UploadFileToS3(filePath string) (string, error) {
 		return "", err
 	}
 
-	// construct file URL
-	fileURL := fmt.Sprintf("s3://%s/%s", config.BucketName, filepath.Base(filePath))
+	// construct the file URL
+	fileURL := fmt.Sprintf("s3://%s/%s", config.BucketName, key)
 
 	return fileURL, nil
 }

@@ -24,7 +24,7 @@ func SendVoiceRecordingToTextChannel(channelId string, channel string, key strin
 		Reader: bytes.NewReader(fileBuffer),
 	}
 	messageSend := discordgo.MessageSend{
-		Content: fmt.Sprintf("Recording from voice channel %s", channel),
+		Content: fmt.Sprintf("Recording from voice channel: **%s**", channel),
 		Files:   []*discordgo.File{file},
 	}
 

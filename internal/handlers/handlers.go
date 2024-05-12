@@ -61,11 +61,12 @@ func ChannelCreateHandler(s *discordgo.Session, c *discordgo.ChannelCreate) {
 			return
 		}
 
-		go voice.HandleVoice(vc.OpusRecv)
+		go voice.HandleVoice(vc.OpusRecv, c.ID)
 
 		go func() {
 			select {
 			case <-time.After(5 * time.Second):
+				close(vc.OpusRecv)
 				vc.Disconnect()
 			}
 		}()
@@ -78,8 +79,7 @@ var lastChannelID string
 func VoiceStateUpdateHandler(s *discordgo.Session, vs *discordgo.VoiceStateUpdate) {
 	if vs.UserID == s.State.User.ID {
 		if vs.ChannelID == "" {
-			slog.Info("Bot has left the voice channel")
-			voice.OnBotLeaveVoiceChannel(lastChannelID)
+			slog.Info("Bot has left the voice channel", "VC ID", lastChannelID)
 		} else {
 			slog.Info("Bot is now in voice channel.", "VC ID", vs.ChannelID)
 		}
