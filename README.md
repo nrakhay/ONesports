@@ -6,13 +6,25 @@ To get started with using this bot, please follow the setup instructions below.
 
 [Link to demo video](https://drive.google.com/file/d/1LsYwvCO_901C-MB-a2tjYXspZa19JVie/view?usp=sharing)
 
+In case you have any questions, contact me using [Telegram](https://t.me/nouraleee)
+
 ## So, what this bot can do?
 This bot is set up for many different use cases that can be added on demand. However, for now, bot's main funcitonality is:
 
-- Joining a newly created voice channel, recording audio for specified amount of time and saving audio file in .ogg format to AWS S3 and retaining reference in PostgreSQL.
+- Joining a newly created voice channel, recording audio for specified amount of time (5 seconds by default) and saving audio file in .ogg format to AWS S3 and retaining reference in PostgreSQL.
 - Sending the recorded audio file to `# voice-chat-recordings` text channel.
 
 ## How can I try using this bot?
+
+### Use my server and Bot Token
+
+[Discord Channel Link](https://discord.gg/hjcjRr3M)
+
+[Token Link](https://docs.google.com/document/d/1Cr2kwQHxbj3RIyNe1O39BWI2Rth0MVZs8Kczvre83R0/edit?usp=sharing)
+
+And go straight to **Step 4** below
+
+### With creating your own channel and bot
 
 Follow these steps to set up the ON Esports Bot in your Discord server:
 
@@ -49,6 +61,7 @@ Also, do not forget to populate AWS variables and put ID of a Text Channel where
 ```bash
 cd local/
 docker compose up -d
+cd ..
 ```
 
 **6. Run the application**
