@@ -67,6 +67,7 @@ External services like AWS S3 are located inside `internals/service` directory.
 
 In this project, I used `sqlx`, an extension to Golang's `database/sql`. However, I chose not to use any ORM since there was no need.
 
+Also, errors are handled gracefully and `log/slog` module is used for structured logging during the execution
 
 ## Miscellaneous
 Thank you for such a cool task :D
