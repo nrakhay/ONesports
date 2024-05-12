@@ -1,6 +1,6 @@
-# ON Esports Bot for Discord
+# ONesports Bot for Discord
 
-Welcome to the implementation of the Discord Bot for [ONEsports.gg](https://onesports.gg/). Along the way, I implemented a Clean Code Architecture and made project structure separated into modules to provide future extendibility and flexibility.
+Welcome to the implementation of the Discord Bot for [ONesports](https://onesports.gg/). Along the way, I implemented a Clean Code Architecture and made project structure separated into modules to provide future extendibility and flexibility.
 
 To get started with using this bot, please follow the setup instructions below. 
 
@@ -47,7 +47,7 @@ Next, you need to navigate to [Discord Developer Portal](https://discord.com/dev
  Start by cloning the bot repository to your local machine. Use the following command:
 
 ```bash
-git clone https://github.com/nrakhay/ONEsports.git
+git clone https://github.com/nrakhay/ONesports.git
 cd ONEsports
 cp .env-example .env # change *cp* to *copy* if you are using Windows
 ```
