@@ -4,9 +4,9 @@ Welcome to the implementation of the Discord Bot for [ONesports](https://onespor
 
 To get started with using this bot, please follow the setup instructions below. 
 
-[Link to demo video](https://drive.google.com/file/d/1LsYwvCO_901C-MB-a2tjYXspZa19JVie/view?usp=sharing)
-
 In case you have any questions, contact me using [Telegram](https://t.me/nouraleee)
+
+## [Tap to watch Demo video](https://drive.google.com/file/d/1LsYwvCO_901C-MB-a2tjYXspZa19JVie/view?usp=sharing)
 
 ## So, what this bot can do?
 This bot is set up for many different use cases that can be added on demand. However, for now, bot's main funcitonality is:
