@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/nrakhay/ONEsports/internal/command/text"
+	"github.com/nrakhay/ONEsports/internal/discord"
 	"github.com/nrakhay/ONEsports/internal/repository"
 	"github.com/nrakhay/ONEsports/internal/service/s3"
 
@@ -32,6 +33,12 @@ func OnBotLeaveVoiceChannel(channelID string) {
 		return
 	}
 
+	channel, err := discord.Session.Channel(channelID)
+	if err != nil {
+		slog.Error("Failed to retrieve channel: ", err)
+		return
+	}
+
 	slog.Info("Uploading files to S3")
 
 	for _, f := range files {
@@ -44,14 +51,16 @@ func OnBotLeaveVoiceChannel(channelID string) {
 
 		slog.Info("Successfully uploaded to S3.", "Filename", f.Name())
 
-		err = repository.CreateVCRecording(channelID, s3Url)
+		err = repository.CreateVCRecording(channelID, channel.Name, s3Url)
 		if err != nil {
 			slog.Error("Failed to create recording in database", "error", err)
 			continue
 		}
 
+		slog.Error("Successfully created recording in database", "Filename", f.Name())
+
 		// this is text channel id for recordings
-		text.SendVoiceRecordingToTextChannel("1238876913070637198", f.Name())
+		text.SendVoiceRecordingToTextChannel("1238876913070637198", channel.Name, f.Name())
 
 		err = os.Remove(fileName)
 		if err != nil {

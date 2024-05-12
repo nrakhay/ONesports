@@ -72,14 +72,18 @@ func ChannelCreateHandler(s *discordgo.Session, c *discordgo.ChannelCreate) {
 	}
 }
 
+var lastChannelID string
+
 // Listen to voice state update events
 func VoiceStateUpdateHandler(s *discordgo.Session, vs *discordgo.VoiceStateUpdate) {
 	if vs.UserID == s.State.User.ID {
 		if vs.ChannelID == "" {
 			slog.Info("Bot has left the voice channel")
-			voice.OnBotLeaveVoiceChannel(vs.ChannelID)
+			voice.OnBotLeaveVoiceChannel(lastChannelID)
 		} else {
 			slog.Info("Bot is now in voice channel.", "VC ID", vs.ChannelID)
 		}
 	}
+
+	lastChannelID = vs.ChannelID
 }

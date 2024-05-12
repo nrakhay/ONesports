@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS voice_channel_recordings (
     id SERIAL PRIMARY KEY,
     channel_id TEXT,
+    channel_name TEXT,
     file_path TEXT
 );
 `
