@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/nrakhay/ONEsports/internal/command/text"
+	"github.com/nrakhay/ONEsports/internal/config"
 	"github.com/nrakhay/ONEsports/internal/discord"
 	"github.com/nrakhay/ONEsports/internal/repository"
 	"github.com/nrakhay/ONEsports/internal/service/s3"
@@ -39,7 +40,7 @@ func saveChannelRecording(channelID string, buffer *bytes.Buffer, key string) (s
 	slog.Info("Successfully created recording in database", "Filename", key)
 
 	// this is text channel id for recordings
-	text.SendVoiceRecordingToTextChannel("1238876913070637198", channel.Name, key)
+	text.SendVoiceRecordingToTextChannel(config.RecordingsChannelID, channel.Name, key)
 
 	return s3Url, nil
 }

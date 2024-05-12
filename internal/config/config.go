@@ -8,8 +8,9 @@ import (
 )
 
 var (
-	Token     string
-	BotPrefix string
+	Token               string
+	BotPrefix           string
+	RecordingsChannelID string
 
 	BucketName      string
 	AccessKeyID     string
@@ -18,12 +19,13 @@ var (
 )
 
 type Config struct {
-	Token           string `json:"token"`
-	BotPrefix       string `json:"botPrefix"`
-	BucketName      string `json:"bucketName"`
-	AccessKeyID     string `json:"accessKeyID"`
-	SecretAccessKey string `json:"secret`
-	Region          string `json:"region"`
+	Token               string `json:"token"`
+	BotPrefix           string `json:"botPrefix"`
+	RecordingsChannelID string `json: recordingsChannelID`
+	BucketName          string `json:"bucketName"`
+	AccessKeyID         string `json:"accessKeyID"`
+	SecretAccessKey     string `json:"secret`
+	Region              string `json:"region"`
 }
 
 func goDotEnvVariable(key string) string {
@@ -39,6 +41,9 @@ func goDotEnvVariable(key string) string {
 func ReadConfig() error {
 	Token = goDotEnvVariable("BOT_TOKEN")
 	BotPrefix = "!"
+
+	// CHANGE THIS TO YOUR OWN CHANNEL ID
+	RecordingsChannelID = goDotEnvVariable("RECORDINGS_CHANNEL_ID")
 
 	BucketName = goDotEnvVariable("AWS_BUCKET_NAME")
 	AccessKeyID = goDotEnvVariable("AWS_ACCESS_KEY")
